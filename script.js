@@ -1,29 +1,44 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+const playAgainButton = document.getElementById("playAgain");
 
 canvas.width = 800;
 canvas.height = 600;
 
-let pinkBall = { x: 400, y: 300, r: 20 };
-let blueBalls = [];
-let points = 0;
-let gameOver = false;
-let explosionParticles = [];
+let pinkBall;
+let blueBalls;
+let points;
+let gameOver;
+let explosionParticles;
 const gravity = 0.1;
 
-// Initialize blue balls
-for (let i = 0; i < 50; i++) {
-  blueBalls.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    r: 10,
-    dx: Math.random() * 2 - 1,
-    dy: Math.random() * 2 - 1,
-  });
+// Initialize game state
+function initializeGame() {
+  pinkBall = { x: 400, y: 300, r: 20 };
+  blueBalls = [];
+  points = 0;
+  gameOver = false;
+  explosionParticles = [];
+
+  for (let i = 0; i < 50; i++) {
+    blueBalls.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: 10,
+      dx: Math.random() * 2 - 1,
+      dy: Math.random() * 2 - 1,
+    });
+  }
+}
+
+// Function to restart the game
+function restartGame() {
+  playAgainButton.classList.add("hidden");
+  initializeGame();
 }
 
 function explode() {
-  pinkBall.r = 0;  // Make the pink-purple ball disappear
+  pinkBall.r = 0;
   for (let i = 0; i < 100; i++) {
     explosionParticles.push({
       x: pinkBall.x,
@@ -86,13 +101,14 @@ function update(event) {
   if (blueBalls.length === 0 && !gameOver) {
     gameOver = true;
     explode();
+    playAgainButton.classList.remove("hidden");
   }
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (pinkBall.r > 0) { // Draw the pink-purple ball only if its radius is greater than zero
+  if (pinkBall.r > 0) {
     const r = 255;
     const g = 20;
     const b = pinkBall.r * 5;
@@ -124,6 +140,13 @@ function draw() {
   }
 }
 
+// Initialize game on first run
+initializeGame();
+
+// Add play again event listener
+playAgainButton.addEventListener("click", restartGame);
+
+// Main game loop
 canvas.addEventListener("mousemove", update);
 setInterval(() => {
   update();
